@@ -1,0 +1,55 @@
+# Render Blueprint for the AutoScale Voice Demo backend.
+# Deploy via Render dashboard → New → Blueprint → pick this repo.
+# Secrets are marked `sync: false` — Render will prompt for them in the dashboard;
+# they are NEVER stored in this file or the repo.
+services:
+  - type: web
+    name: autoscale-voice-demo-backend
+    runtime: node
+    rootDir: backend
+    plan: free # no charge; note: free services sleep when idle and use ephemeral disk
+    region: oregon
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # --- Mode (safe default: mock/TEST, no real calls) ---
+      - key: VOICE_PROVIDER
+        value: mock
+      - key: CALL_STORE
+        value: memory # switch to 'firestore' for history that survives restarts
+      # --- Required for admin sign-in (set in dashboard) ---
+      - key: ADMIN_ALLOWLIST
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      # Path to the service-account JSON added via Render "Secret Files"
+      # e.g. /etc/secrets/serviceAccount.json
+      - key: FIREBASE_SERVICE_ACCOUNT_PATH
+        sync: false
+      # Your deployed frontend origin, e.g. https://<frontend>.vercel.app
+      - key: CORS_ORIGINS
+        sync: false
+      # --- Editable demo identity (optional) ---
+      - key: DEMO_BUSINESS_NAME
+        value: AutoScale Demo
+      - key: DEMO_AGENT_NAME
+        value: Aria
+      # --- Limits / spend controls (optional; defaults exist in code) ---
+      - key: DAILY_CALL_LIMIT
+        value: "25"
+      - key: MAX_DAILY_SPEND_USD
+        value: "10"
+      # --- LIVE Retell (leave UNSET until live calling is authorized) ---
+      - key: RETELL_API_KEY
+        sync: false
+      - key: RETELL_AGENT_ID
+        sync: false
+      - key: RETELL_FROM_NUMBER
+        sync: false
+      - key: RETELL_WEBHOOK_API_KEY
+        sync: false
