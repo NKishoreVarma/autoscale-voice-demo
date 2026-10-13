@@ -1,0 +1,6 @@
+{
+  "testEnvironment": "node",
+  "setupFiles": ["<rootDir>/tests/env.setup.cjs"],
+  "testMatch": ["<rootDir>/tests/**/*.test.js"],
+  "transform": {}
+}
