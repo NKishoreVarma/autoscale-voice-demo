@@ -20,26 +20,30 @@ export async function requireAdmin(req, res, next) {
     const header = req.get('authorization') || '';
     const match = header.match(/^Bearer\s+(.+)$/i);
     if (!match) {
-      return res.status(401).json({ error: 'Missing bearer token.' });
+      return res.status(401).json({ error: 'Missing bearer token.', code: 'AUTH_MISSING' });
     }
     let decoded;
     try {
       decoded = await tokenVerifier(match[1]);
     } catch {
-      return res.status(401).json({ error: 'Invalid or expired token.' });
+      return res.status(401).json({ error: 'Invalid or expired token.', code: 'AUTH_INVALID' });
     }
     const email = (decoded.email || '').toLowerCase();
     if (!email || !decoded.email_verified) {
-      return res.status(403).json({ error: 'Email not verified.' });
+      return res
+        .status(403)
+        .json({ error: 'Your email address is not verified.', code: 'EMAIL_NOT_VERIFIED' });
     }
     if (!config.adminAllowlist.includes(email)) {
       logger.warn('authz.denied', { email });
-      return res.status(403).json({ error: 'Not authorized for this demo.' });
+      return res
+        .status(403)
+        .json({ error: 'This account is not authorized for the demo.', code: 'FORBIDDEN_ADMIN' });
     }
     req.admin = { uid: decoded.uid, email };
     return next();
   } catch (err) {
     logger.error('auth.middleware.error', { message: err.message });
-    return res.status(500).json({ error: 'Authentication error.' });
+    return res.status(500).json({ error: 'Authentication error.', code: 'AUTH_ERROR' });
   }
 }
