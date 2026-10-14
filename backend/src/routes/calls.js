@@ -38,7 +38,7 @@ function toClientView(record, { includeTranscript = false } = {}) {
 
 // POST /api/voice/calls — initiate a single outbound call.
 callsRouter.post('/', requireAdmin, initiateCallLimiter, async (req, res) => {
-  const { phone, consent, idempotencyKey, testScenario } = req.body || {};
+  const { phone, consent, idempotencyKey, testScenario, customerName } = req.body || {};
   try {
     const { record, deduped } = await initiateCall({
       admin: req.admin,
@@ -46,6 +46,7 @@ callsRouter.post('/', requireAdmin, initiateCallLimiter, async (req, res) => {
       consent,
       idempotencyKey,
       testScenario,
+      customerName,
     });
     return res.status(deduped ? 200 : 201).json({
       deduped: !!deduped,

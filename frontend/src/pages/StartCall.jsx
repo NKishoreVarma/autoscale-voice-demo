@@ -28,6 +28,7 @@ export default function StartCall() {
   const isTest = status?.mode === 'test';
 
   const [phone, setPhone] = useState('+91');
+  const [customerName, setCustomerName] = useState('');
   const [note, setNote] = useState('');
   const [scenario, setScenario] = useState('completed');
   const [consent, setConsent] = useState(false);
@@ -50,6 +51,7 @@ export default function StartCall() {
     try {
       const res = await api.createCall({
         phone,
+        customerName: customerName || undefined,
         consent: { confirmed: true, note: note || undefined },
         idempotencyKey: `${phone}-${Date.now()}`,
         ...(isTest ? { testScenario: scenario } : {}),
@@ -82,6 +84,10 @@ export default function StartCall() {
           <Field label="Recipient number (+91)" htmlFor="phone" error={fieldError}
             hint="Indian mobile numbers only, e.g. +91 98765 43210">
             <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="+919876543210" />
+          </Field>
+
+          <Field label="Customer name (optional)" htmlFor="customer" hint="Passed to the agent as {{customer_name}} for a personalized greeting">
+            <Input id="customer" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="e.g. Ravi" />
           </Field>
 
           <Field label="Consent note (optional)" htmlFor="note" hint="For your audit trail — e.g. how/when consent was given">

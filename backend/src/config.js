@@ -46,13 +46,22 @@ export const config = {
     webhookApiKey: process.env.RETELL_WEBHOOK_API_KEY || process.env.RETELL_API_KEY || '',
   },
 
-  // Editable demo identity injected into the agent as dynamic variables.
+  // Editable demo identity + business context injected into the agent as dynamic
+  // variables (the "Aria" prompt's {{...}} fields). Defaults are intentionally empty
+  // for content fields — the agent must never invent business facts. Fill these via
+  // environment variables to give Aria real, verified information to work from.
   demo: {
     businessName: process.env.DEMO_BUSINESS_NAME || 'AutoScale Demo',
     agentName: process.env.DEMO_AGENT_NAME || 'Aria',
     callPurpose:
       process.env.DEMO_CALL_PURPOSE ||
       'a short demonstration of our AI voice assistant',
+    businessDescription: process.env.DEMO_BUSINESS_DESCRIPTION || '',
+    productDetails: process.env.DEMO_PRODUCT_DETAILS || '',
+    businessFaqs: process.env.DEMO_BUSINESS_FAQS || '',
+    offersAndPrices: process.env.DEMO_OFFERS_AND_PRICES || '',
+    contactDetails: process.env.DEMO_CONTACT_DETAILS || '',
+    additionalInstructions: process.env.DEMO_ADDITIONAL_INSTRUCTIONS || '',
   },
 
   limits: {

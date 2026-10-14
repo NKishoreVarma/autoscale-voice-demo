@@ -20,7 +20,7 @@ function retentionDeleteAfter() {
   return Date.now() + config.retention.days * 24 * 60 * 60 * 1000;
 }
 
-export async function initiateCall({ admin, phone, consent, idempotencyKey, testScenario }) {
+export async function initiateCall({ admin, phone, consent, idempotencyKey, testScenario, customerName }) {
   const store = await getStore();
 
   // Fail closed: if LIVE provider is selected but not fully configured, refuse the
@@ -83,10 +83,21 @@ export async function initiateCall({ admin, phone, consent, idempotencyKey, test
   }
 
   // 5. Persist the record FIRST (status 'queued') so nothing is lost on provider failure.
+  // Full dynamic-variable contract expected by the "Aria" agent prompt. Content
+  // fields come from editable server config and default to empty strings — the
+  // agent must never invent business facts, so empty is the safe default.
   const dynamicVariables = {
     business_name: config.demo.businessName,
     agent_name: config.demo.agentName,
     call_purpose: config.demo.callPurpose,
+    business_description: config.demo.businessDescription,
+    product_details: config.demo.productDetails,
+    business_faqs: config.demo.businessFaqs,
+    verified_offers_and_prices: config.demo.offersAndPrices,
+    business_contact_details: config.demo.contactDetails,
+    additional_instructions: config.demo.additionalInstructions,
+    // Per-call, optional. Never fabricated; empty when not supplied.
+    customer_name: (typeof customerName === 'string' ? customerName.trim() : '') || '',
   };
 
   let record = await store.createCall({

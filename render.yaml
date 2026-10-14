@@ -34,11 +34,24 @@ services:
       # Your deployed frontend origin, e.g. https://<frontend>.vercel.app
       - key: CORS_ORIGINS
         sync: false
-      # --- Editable demo identity (optional) ---
+      # --- Editable demo identity + business context (optional) ---
+      # Content fields injected into the Aria agent prompt; set only VERIFIED info.
       - key: DEMO_BUSINESS_NAME
         value: AutoScale Demo
       - key: DEMO_AGENT_NAME
         value: Aria
+      - key: DEMO_BUSINESS_DESCRIPTION
+        sync: false
+      - key: DEMO_PRODUCT_DETAILS
+        sync: false
+      - key: DEMO_BUSINESS_FAQS
+        sync: false
+      - key: DEMO_OFFERS_AND_PRICES
+        sync: false
+      - key: DEMO_CONTACT_DETAILS
+        sync: false
+      - key: DEMO_ADDITIONAL_INSTRUCTIONS
+        sync: false
       # --- Limits / spend controls (optional; defaults exist in code) ---
       - key: DAILY_CALL_LIMIT
         value: "25"
