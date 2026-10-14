@@ -23,6 +23,16 @@ statusRouter.get('/', (req, res) => {
       businessName: config.demo.businessName,
       agentName: config.demo.agentName,
       callPurpose: config.demo.callPurpose,
+      // Presence flags only (never the content) so operators can verify which
+      // agent dynamic-variable fields are configured on this deployment.
+      context: {
+        businessDescription: !!config.demo.businessDescription,
+        productDetails: !!config.demo.productDetails,
+        businessFaqs: !!config.demo.businessFaqs,
+        offersAndPrices: !!config.demo.offersAndPrices,
+        contactDetails: !!config.demo.contactDetails,
+        additionalInstructions: !!config.demo.additionalInstructions,
+      },
     },
     limits: {
       perMinute: config.limits.perMinute,
