@@ -33,7 +33,7 @@ export const config = {
   // Data store: 'memory' (default, no credentials) or 'firestore'.
   store: process.env.CALL_STORE || 'memory',
 
-  // Provider: 'mock' (default, no credentials, labeled as test) or 'retell'.
+  // Provider: 'mock' (default, no credentials, labeled as test), 'retell', or 'sarvam'.
   provider: process.env.VOICE_PROVIDER || 'mock',
 
   retell: {
@@ -44,6 +44,25 @@ export const config = {
     fromNumber: process.env.RETELL_FROM_NUMBER || '',
     // Webhook signing: Retell signs with the API key; the SDK verify() uses it.
     webhookApiKey: process.env.RETELL_WEBHOOK_API_KEY || process.env.RETELL_API_KEY || '',
+  },
+
+  // Sarvam Voice Agents (outbound). All values are server-side only.
+  // Endpoint: POST {baseUrl}/api/outbounds/v1/orgs/{orgId}/workspaces/{workspaceId}/outbounds
+  sarvam: {
+    apiKey: process.env.SARVAM_API_KEY || '', // secret — X-API-Key header
+    baseUrl: process.env.SARVAM_BASE_URL || 'https://apps.sarvam.ai',
+    orgId: process.env.SARVAM_ORG_ID || '',
+    workspaceId: process.env.SARVAM_WORKSPACE_ID || '',
+    appId: process.env.SARVAM_APP_ID || '',
+    appVersion: Number(process.env.SARVAM_APP_VERSION || '1'),
+    appType: process.env.SARVAM_APP_TYPE || 'agent',
+    connectionId: process.env.SARVAM_CONNECTION_ID || '',
+    agentPhoneNumber: process.env.SARVAM_AGENT_PHONE_NUMBER || '',
+    // Optional app_overrides — omitted from the request when empty (no placeholders sent).
+    initialBotMessage: process.env.SARVAM_INITIAL_BOT_MESSAGE || '',
+    initialStateName: process.env.SARVAM_INITIAL_STATE_NAME || '',
+    // Request timeout (ms) so a hung provider surfaces as a timeout, not a stall.
+    timeoutMs: num('SARVAM_TIMEOUT_MS', 15000),
   },
 
   // Editable demo identity + business context injected into the agent as dynamic
@@ -90,22 +109,32 @@ export const config = {
 // Only +91 (India) destinations are permitted for this demo.
 export const ALLOWED_COUNTRY = 'IN';
 
+const LIVE_PROVIDERS = ['retell', 'sarvam'];
+
 export function assertProviderConfigured() {
+  const missing = [];
   if (config.provider === 'retell') {
-    const missing = [];
     if (!config.retell.apiKey) missing.push('RETELL_API_KEY');
     if (!config.retell.agentId) missing.push('RETELL_AGENT_ID');
     if (!config.retell.fromNumber) missing.push('RETELL_FROM_NUMBER');
-    if (missing.length) {
-      const err = new Error(
-        `Provider 'retell' selected but missing: ${missing.join(', ')}`
-      );
-      err.code = 'PROVIDER_NOT_CONFIGURED';
-      throw err;
-    }
+  } else if (config.provider === 'sarvam') {
+    if (!config.sarvam.apiKey) missing.push('SARVAM_API_KEY');
+    if (!config.sarvam.orgId) missing.push('SARVAM_ORG_ID');
+    if (!config.sarvam.workspaceId) missing.push('SARVAM_WORKSPACE_ID');
+    if (!config.sarvam.appId) missing.push('SARVAM_APP_ID');
+    if (!config.sarvam.connectionId) missing.push('SARVAM_CONNECTION_ID');
+    if (!config.sarvam.agentPhoneNumber) missing.push('SARVAM_AGENT_PHONE_NUMBER');
+  }
+  if (missing.length) {
+    const err = new Error(
+      `Provider '${config.provider}' selected but missing: ${missing.join(', ')}`
+    );
+    err.code = 'PROVIDER_NOT_CONFIGURED';
+    throw err;
   }
 }
 
+// Mock (TEST) mode is the default for any provider that isn't a configured live one.
 export function isMockProvider() {
-  return config.provider !== 'retell';
+  return !LIVE_PROVIDERS.includes(config.provider);
 }

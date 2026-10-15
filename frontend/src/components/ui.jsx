@@ -84,6 +84,7 @@ const STATUS_TONE = {
   unavailable: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
 };
 export function StatusBadge({ status }) {
+  
   const tone = STATUS_TONE[status] || STATUS_TONE.queued;
   return (
     <span className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset', tone)}>

@@ -1,6 +1,7 @@
 import { config, isMockProvider, assertProviderConfigured } from '../config.js';
 import { createMockProvider } from './mock.js';
 import { createRetellProvider } from './retell.js';
+import { createSarvamProvider } from './sarvam.js';
 
 let instance = null;
 
@@ -10,7 +11,11 @@ export function getProvider() {
     instance = createMockProvider();
   } else {
     assertProviderConfigured();
-    instance = createRetellProvider(config.retell);
+    if (config.provider === 'sarvam') {
+      instance = createSarvamProvider(config.sarvam);
+    } else {
+      instance = createRetellProvider(config.retell);
+    }
   }
   return instance;
 }
