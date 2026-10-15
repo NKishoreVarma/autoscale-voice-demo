@@ -1,0 +1,30 @@
+# Gitleaks config for autoscale-voice-demo.
+# Extends the default ruleset and adds a Sarvam-specific rule. The allowlist
+# permits the KNOWN NON-SECRET sample identifiers used in .env.example and docs
+# (org/workspace/connection UUIDs, the agent phone, the sample app id) — it does
+# NOT allowlist whole files, so a real API key placed anywhere is still caught.
+title = "autoscale-voice-demo secret scan"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "sarvam-api-key"
+description = "Sarvam API key"
+regex = '''sk_samvaad[_a-zA-Z0-9]{6,}'''
+keywords = ["sk_samvaad"]
+
+[allowlist]
+description = "Known non-secret sample values and empty placeholders"
+regexes = [
+  # Empty env placeholders like SARVAM_API_KEY= / RETELL_API_KEY=
+  '''(?i)(api[_-]?key|secret|token|password)\s*=\s*$''',
+  # Non-secret sample identifiers embedded in the supplied Sarvam endpoint/snippet
+  '''01a13ef1-e00d-7269-ada5-a4c04d28ca74''',
+  '''01a13ef1-e013-754a-b24a-7ebcc8ac6482''',
+  '''9e7cbf64-e1-bb23e0c7-dbbf''',
+  '''autoscale-e33748ce-5dbd''',
+  '''\+917965480920''',
+  # Firebase WEB API key is public client config (shipped to the browser).
+  '''VITE_FIREBASE_API_KEY\s*=\s*AIza[0-9A-Za-z_-]{35}''',
+]

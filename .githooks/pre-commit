@@ -1,0 +1,18 @@
+#!/bin/sh
+# Pre-commit secret guard. Blocks commits that introduce likely secrets.
+# Enable once with:  git config core.hooksPath .githooks
+#
+# Scans only STAGED content. Never prints secret values.
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node not found; skipping secret scan (install Node to enable)." >&2
+  exit 0
+fi
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+node "$REPO_ROOT/scripts/secret-scan.mjs" --staged
+status=$?
+if [ "$status" -ne 0 ]; then
+  echo "pre-commit: secret scan failed — commit aborted." >&2
+  exit 1
+fi
+exit 0
